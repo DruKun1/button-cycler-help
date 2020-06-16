@@ -13,15 +13,7 @@
 // Digital IO pin connected to the button. This will be driven with a
 // pull-up resistor so the switch pulls the pin to ground momentarily.
 // On a high -> low transition the button press logic will execute.
-#define BUTTON_PIN 0
-#define BUTTON_PIN 1
-#define BUTTON_PIN 2
-#define BUTTON_PIN 3
-#define BUTTON_PIN 4
-#define BUTTON_PIN 5
-#define BUTTON_PIN 7
-#define BUTTON_PIN 8
-#define BUTTON_PIN 9
+const byte BUTTON_PINS[] = {2, 3, 4, 5, 7, 8, 9, 10, 11};
 
 #define PIXEL_PIN    6  // Digital IO pin connected to the NeoPixels.
 
@@ -42,21 +34,21 @@ boolean oldState = HIGH;
 int     mode     = 0;    // Currently-active animation mode, 0-9
 
 void setup() {
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_PINS, INPUT_PULLUP);
   strip.begin(); // Initialize NeoPixel strip object (REQUIRED)
   strip.show();  // Initialize all pixels to 'off'
 }
 
 void loop() {
   // Get current button state.
-  boolean newState = digitalRead(BUTTON_PIN);
+  boolean newState = digitalRead(BUTTON_PINS);
 
   // Check if state changed from high to low (button press).
   if((newState == LOW) && (oldState == HIGH)) {
     // Short delay to debounce button.
     delay(20);
     // Check if button is still low after debounce.
-    newState = digitalRead(BUTTON_PIN);
+    newState = digitalRead(BUTTON_PINS);
     if(newState == LOW) {      // Yes, still low
       if(++mode > 8) mode = 0; // Advance to next mode, wrap around after #8
       switch(mode) {           // Start the new animation...
