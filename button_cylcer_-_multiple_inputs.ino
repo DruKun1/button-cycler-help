@@ -13,7 +13,7 @@
 // Digital IO pin connected to the button. This will be driven with a
 // pull-up resistor so the switch pulls the pin to ground momentarily.
 // On a high -> low transition the button press logic will execute.
-const byte BUTTON_PINS[] = {2, 3, 4, 5, 7, 8, 9, 10, 11};
+const int BUTTON_PINS[] = {2, 3, 4, 5, 7, 8, 9, 10, 11};
 
 #define PIXEL_PIN    6  // Digital IO pin connected to the NeoPixels.
 
@@ -30,28 +30,42 @@ Adafruit_NeoPixel strip(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800);
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
 
-boolean oldState = HIGH;
+// Save state for each button
+const boolean oldPinState[] = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH}
 int     mode     = 0;    // Currently-active animation mode, 0-9
 
 void setup() {
-  pinMode(BUTTON_PINS, INPUT_PULLUP);
+  // Loop through all the button pins and set them to INPUT_PULLUP mode
+  for (int i = 0; i < sizeof(BUTTON_PINS); i++) {
+    pinMode(BUTTON_PINS[i], INPUT_PULLUP);
+  }
   strip.begin(); // Initialize NeoPixel strip object (REQUIRED)
   strip.show();  // Initialize all pixels to 'off'
 }
 
 void loop() {
+
+  // Loop through all the buttons and see if we should light up a different configuration
+  for (int i = 0; i < sizeof(BUTTON_PINS), i++) {
+    lightItUp(BUTTON_PINS[i]) // This has a 20ms delay built into 
+  }
+}
+
+void lightItUp(int pinNum) {
+
   // Get current button state.
-  boolean newState = digitalRead(BUTTON_PINS);
+  boolean newState = digitalRead(pinNum);
 
   // Check if state changed from high to low (button press).
-  if((newState == LOW) && (oldState == HIGH)) {
+  if((newState == LOW) && (oldState[pinNum] == HIGH)) {
     // Short delay to debounce button.
     delay(20);
     // Check if button is still low after debounce.
-    newState = digitalRead(BUTTON_PINS);
+    newState = digitalRead(pinNum);
     if(newState == LOW) {      // Yes, still low
-      if(++mode > 8) mode = 0; // Advance to next mode, wrap around after #8
-      switch(mode) {           // Start the new animation...
+
+
+      switch(pinMode) {           // Start the new animation...
         case 0:
           colorWipe(strip.Color(  0,   0,   0), 50);    // Black/off
           break;
@@ -84,7 +98,8 @@ void loop() {
   }
 
   // Set the last-read button state to the old state.
-  oldState = newState;
+  oldState[pinNum] = newState;
+
 }
 
 // Fill strip pixels one after another with a color. Strip is NOT cleared
